@@ -1,0 +1,266 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>VueJS</title>
+
+    <!-- VueJS -->
+    <script src="https://unpkg.com/vue@3/dist/vue.global.js"></script>
+
+    <style>
+        .verde{
+            color: green;
+        }
+
+        .vermelho{
+            color: red;
+        }
+    </style>
+</head>
+<body>
+    <h1>Teste</h1>
+    <div id="app">
+        {{ mensagem }}
+        <br>
+        hobbies: {{ hobbies }}
+        <br>
+        Perfil: {{ perfil }}
+        <br>
+        1º Curso: {{ perfil.cursos[0].nome}}
+        <hr>
+
+        <h3>Métodos</h3>
+        {{ helloWorld() }}
+        <hr>
+
+        <h3>V-Bind</h3> 
+        <p class="negrito" v-bind:class="status ? 'verde' : 'vermelho' ">Cor</p>
+        <input type="text" :value="id"><br>
+        <input type="checkbox" :checked="checked"><br>
+        <hr>
+
+
+        <h3>V-on</h3>
+        <button @click="alerta('coe malandro 2', $event)">Clique aqui</button>
+        <p>Contador de cliques: {{ contador }}</p>
+        <hr>
+
+        <h3>Selecionando elementos</h3>
+        <input type="text" id="edtTeste">
+        <button @click="selecionaElemento()">Selecione o elemento</button>
+        <p>Elemento: {{ elementoTeste }}</p>
+        <hr>
+
+        <h3>V-if</h3>
+        <button @click="exibirSaldo = !exibirSaldo">
+            <span v-if="!exibirSaldo">Exibir saldo</span>
+            <!-- <span v-else-if="exibirSaldo">Ocultar saldo</span> -->
+            <span v-else>Ocultar saldo</span>
+        </button>
+        <p>Saldo: <span v-if="exibirSaldo">{{ saldo }}</span></p>
+        <hr>
+
+        <h3>V-show</h3>
+        <p @mouseover="exibirTooltip = true" @mouseout="exibirTooltip = false">Exemplo tooltip</p>
+        <div v-show="exibirTooltip">
+            <p>Texto de ajuda do tooltip</p>
+        </div>
+        <hr>
+
+        <h3>V-html</h3>
+        <div v-html="elementoHtml">
+        </div>
+        <hr>
+
+        <h3>V-text</h3>
+        <div v-text="texto">
+        </div>
+        <hr>
+
+        <h3>V-once</h3>
+        <p v-once>Saldo inicial: {{ saldo }}</p>
+        <p>Saldo Atualizado: {{ saldo }}</p>
+        <input type="text" id="edtValor">
+        <button @click="creditar()">Creditar</button>
+        <button @click="debitar()">Debitar</button>
+        <hr>
+
+        <h3>V-for</h3>
+        <ul>
+            <li v-for="(curso, key) in cursos">{{ key }} - {{ curso }} - <a href="www.google.com" @click.prevent="excluirCurso(key)">Excluir</a></li>
+        </ul>
+        <input type="text" id="edtNovoCurso">
+        <button @click="adicionarCurso()">Adicionar curso</button>
+
+        <br>
+        <br>
+
+        <table border="1">
+            <thead>
+                <tr>
+                    <th>Id</th>
+                    <th>Nome</th>
+                    <th>Horas</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr v-for="(curso, key) in cursos2" :key="curso.id">  <!-- depende do array -->
+                    <td>{{ key }}</td>
+                    <td>{{ curso.nome }}</td>
+                    <td>{{ curso.horas }}</td>
+                </tr>
+            </tbody>
+        </table>
+        <button @click="atualizarCurso()">Atualizar curso</button>
+
+        <hr>
+
+        <h3>Comptued</h3>
+        <h4>Adicionar pacientes</h4>
+        <span>Nome: </span><input type="text" id="inputNome"><br>
+        <span>Idade: </span><input type="text" id="inputIdade"><br>
+        <span>Plano: </span><input type="text" id="inputPlano"><br>
+        <button @click="adicionarPaciente()">Adicionar</button>
+        <hr>
+        <h4>Último paciente cadastrado</h4>
+        <p v-if="pacientes.length > 0">
+            {{ ultimoPaciente }}
+        </p>
+        <hr>
+        <h4>Pacientes do plano Ouro</h4>
+        <p v-for="p in pacientes">{{ p.plano == 'Ouro' ? p.nome : '' }}</p>
+        <hr>
+
+        <h4>Pacientes cadastrados</h4>
+        <p v-for="p in pacientes">{{p.nome}}</p>
+
+        <hr>
+
+        <h3>V-model</h3>
+        {{ nomeParaModel }}<br>
+        <input type="text" v-model="nomeParaModel">
+        <hr>
+
+        <h3>Watch</h3>
+        <span>Paciente: </span><input type="text" v-model="paciente">
+        <br>
+        <ul>
+            <li v-for="p in lista">{{p.nome}}, {{p.idade}}</li>
+        </ul>
+        <hr>
+
+    </div>
+
+    <script>
+        // // vuejs 2
+        // const vm = new Vue({ // vm = view model
+        //     el: '#app', // elemento
+        //     data: { // variáveis e atributos reativos
+        //         mensagem: 'Primeiro template com Vue'
+        //     }
+        // }) 
+
+        // vuejs 3
+        const { createApp } = Vue
+        const app = createApp({
+            data() { // variáveis e atributos reativos
+                return {
+                    mensagem: 'Primeiro template com Vue',
+                    hobbies: ['1', '2', '3'],
+                    perfil: {
+                        nome: 'chris',
+                        cursos: [
+                            {nome: 'curso 1'},
+                            {nome: 'curso 2'}
+                        ]
+                    },
+                    cor: 'red',
+                    id: 33,
+                    checked: true,
+                    status: false,
+                    contador: 0,
+                    elementoTeste: '',
+                    saldo: 550.37,
+                    exibirSaldo: false,
+                    exibirTooltip: false,
+                    elementoHtml: '<p>teste de injeção de html</p>',
+                    texto: 'eai magrao',
+                    cursos: ['vuejs', 'laravel', 'html/css', 'react'],
+                    cursos2: {
+                        1000: {id: 1000, nome: 'laravel', horas: 25},
+                        1002: {id: 1002, nome: 'vuejs', horas: 10}
+                    },
+                    pacientes: [],
+                    nomeParaModel: 'José da silva',
+                    //watch
+                    paciente: '',
+                    pacientes2: [
+                        { nome: 'Jorge Sant Ana', idade: 32 },
+                        { nome: 'João Santos', idade: 45},
+                        { nome: 'José Auguto', idade: 18 },
+                        { nome: 'Júnior Silva', idade: 20 },
+                        { nome: 'Julho Nogueira', idade: 50},
+                    ],
+                    lista: []
+                }
+            },
+            methods: { //métodos 
+                helloWorld() {
+                    return "Olá mundo = " + this.mensagem
+                },
+                alerta(msg, event) {
+                    this.contador++
+                    alert(msg)
+                    console.log("Dados do evento::: ",event)
+                },
+                selecionaElemento() {
+                    this.elementoTeste = edtTeste
+                },
+                creditar() {
+                    this.saldo += parseFloat(edtValor.value)
+                },
+                debitar() {
+                    this.saldo -= parseFloat(edtValor.value)
+                },
+                adicionarCurso() {
+                    this.cursos.push(edtNovoCurso.value)
+                    edtNovoCurso.value = ''
+                },
+                excluirCurso(key) {
+                    this.cursos.splice(key, 1)
+                },
+                atualizarCurso() {
+                    this.cursos2[1000] = {id: 1000, nome: 'laravel atualizado', horas: 30}
+                },
+                adicionarPaciente() {
+                    this.pacientes.push({
+                        nome: inputNome.value,
+                        idade: inputIdade.value,
+                        plano: inputPlano.value
+                    })
+                }
+            },
+            computed: {
+                ultimoPaciente() {
+                    let key = this.pacientes.length - 1
+                    let txt = 'Paciente: '+ this.pacientes[key].nome +
+                              ', Idade: '+ this.pacientes[key].idade +
+                              ', Plano: '+ this.pacientes[key].plano;
+                    
+                    return txt
+                }
+            },
+            watch: {
+                paciente(valorNovo, valorAntigo){ // tem que ser o mesmo nome do atributo
+                    // console.log(valorNovo)
+                    this.lista = this.pacientes2.filter(p => p.nome.match(valorNovo))
+                }
+            }
+        })
+        app.mount('#app') // elemento
+
+    </script>
+</body>
+</html>
